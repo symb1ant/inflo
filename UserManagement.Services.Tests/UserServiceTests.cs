@@ -17,7 +17,35 @@ public class UserServiceTests
         var result = service.GetAll();
 
         // Assert: Verifies that the action of the method under test behaves as expected.
-        result.Should().BeSameAs(users);
+        result.Should().BeEquivalentTo(users);
+    }
+
+    [Fact]
+    public void FilterByActive_WhenContextReturnsEntities_MustReturnActiveEntities()
+    {
+        // Arrange
+        var service = CreateService();
+        var users = SetupUsers(isActive: true);
+
+        // Act
+        var result = service.FilterByActive(true);
+
+        // Assert
+        result.Should().BeEquivalentTo(users);
+    }
+
+    [Fact]
+    public void FilterByActive_WhenContextReturnsInactiveEntities_MustReturnInactivEntities()
+    {
+        // Arrange
+        var service = CreateService();
+        var users = SetupUsers( isActive: false);
+
+        // Act
+        var result = service.FilterByActive(false);
+
+        // Assert
+        result.Should().BeEquivalentTo(users);
     }
 
     private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)

@@ -23,6 +23,38 @@ public class UserControllerTests
             .Which.Items.Should().BeEquivalentTo(users);
     }
 
+    [Fact]
+    public void List_WhenServiceReturnsActiveUsers_ModelMustContainActiveUsers()
+    {
+        // Arrange
+        var controller = CreateController();
+        var users = SetupFilteredUsers(isActive: true);
+
+        // Act
+        var result = controller.List(true);
+
+        // Assert
+        result.Model
+            .Should().BeOfType<UserListViewModel>()
+            .Which.Items.Should().BeEquivalentTo(users);
+    }
+
+    [Fact]
+    public void List_WhenServiceReturnsInactiveUsers_ModelMustContainInactiveUsers()
+    {
+        // Arrange
+        var controller = CreateController();
+        var users = SetupFilteredUsers(isActive: false);
+
+        // Act
+        var result = controller.List(false);
+
+        // Assert
+        result.Model
+            .Should().BeOfType<UserListViewModel>()
+            .Which.Items.Should().BeEquivalentTo(users);
+    }
+
     private User[] SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
     {
         var users = new[]
@@ -38,6 +70,26 @@ public class UserControllerTests
 
         _userService
             .Setup(s => s.GetAll())
+            .Returns(users);
+
+        return users;
+    }
+
+    private User[] SetupFilteredUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
+    {
+        var users = new[]
+        {
+            new User
+            {
+                Forename = forename,
+                Surname = surname,
+                Email = email,
+                IsActive = isActive
+            }
+        };
+
+        _userService
+            .Setup(s => s.FilterByActive(isActive))
             .Returns(users);
 
         return users;
