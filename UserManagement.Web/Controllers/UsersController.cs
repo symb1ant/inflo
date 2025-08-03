@@ -130,7 +130,6 @@ public class UsersController : Controller
 
     [HttpPost("edituser/{id}")]
     public IActionResult EditUser(long id, UserEditViewModel model)
-
     {
         TempData["UserUpdated"] = false;
 
@@ -156,6 +155,48 @@ public class UsersController : Controller
         }
 
         TempData["UserUpdated"] = true;
+        return RedirectToAction("List");
+    }
+
+    [HttpGet("deleteuser/{id}")]
+    public ViewResult DeleteUser(long id)
+    {
+        var user = _userService.GetAll().FirstOrDefault(u => u.Id == id);
+        if (user == null)
+        {
+            return View("NotFound");
+        }
+
+        var model = new UserListItemViewModel()
+        {
+            Id = user.Id,
+            Forename = user.Forename,
+            Surname = user.Surname,
+            Email = user.Email,
+            IsActive = user.IsActive,
+            DateOfBirth = user.DateOfBirth
+        };
+
+        return View(model);
+    }
+
+    [HttpPost("confirmdelete")]
+    public IActionResult ConfirmDelete(long id)
+    {
+        TempData["UserDeleted"] = false;
+        var user = _userService.GetAll().FirstOrDefault(u => u.Id == id);
+        if (user == null)
+        {
+            return View("NotFound");
+        }
+
+        if (!_userService.Delete(id))
+        {
+            ModelState.AddModelError("", "An error occurred while deleting the user.");
+            return View("Error");
+        }
+
+        TempData["UserDeleted"] = true;
         return RedirectToAction("List");
     }
 }

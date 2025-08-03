@@ -63,4 +63,26 @@ public class UserService : IUserService
 
         return true;
     }
+
+    public bool Delete(long id)
+    {
+        var user = _dataAccess.GetAll<User>().FirstOrDefault(u => u.Id == id);
+        if (user == null)
+        {
+            return false;
+        }
+
+        try
+        {
+            _dataAccess.Delete(user);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return false;
+        }
+
+        return true;
+
+    }
 }

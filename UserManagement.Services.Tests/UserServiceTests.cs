@@ -101,6 +101,30 @@ public class UserServiceTests
 
     }
 
+    [Fact]
+    public void DeleteUser_WhenContextDeletesEntity_MustReturnTrue()
+    {
+        // Arrange
+        var service = CreateService();
+        var user = CreateNewUser();
+        user.Id = 1;
+
+        _dataContext
+            .Setup(s => s.GetAll<User>())
+            .Returns(new[] { user }.AsQueryable());
+
+        _dataContext
+            .Setup(s => s.Delete(It.IsAny<User>()))
+            .Verifiable();
+
+        // Act
+        var result = service.Delete(user.Id);
+
+        // Assert
+        result.Should().BeTrue();
+        _dataContext.Verify(s => s.Delete(It.Is<User>(u => u.Id == user.Id)), Times.Once);
+    }
+
     private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User",
         string email = "juser@example.com", DateTime dateOfBirth = default, bool isActive = true)
     {
@@ -126,7 +150,7 @@ public class UserServiceTests
     private readonly Mock<IDataContext> _dataContext = new();
     private UserService CreateService() => new(_dataContext.Object);
 
-    private User CreateNewUser()
+    private static User CreateNewUser()
     {
         return new User
         {

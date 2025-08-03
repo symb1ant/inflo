@@ -14,4 +14,5 @@ public interface IUserService
     IEnumerable<User> GetAll();
     bool Add(User user);
     bool Update(User user);
+    bool Delete(long id);
 }

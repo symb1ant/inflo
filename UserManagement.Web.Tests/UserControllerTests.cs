@@ -1,4 +1,5 @@
 using System;
+using Microsoft.AspNetCore.Mvc;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Web.Models.Users;
@@ -29,7 +30,7 @@ public class UserControllerTests
     {
         // Arrange
         var controller = CreateController();
-        var users = SetupFilteredUsers(isActive: true);
+        var users = SetupUsers(isActive: true);
 
         // Act
         var result = controller.List(true);
@@ -45,7 +46,7 @@ public class UserControllerTests
     {
         // Arrange
         var controller = CreateController();
-        var users = SetupFilteredUsers(isActive: false);
+        var users = SetupUsers(isActive: false);
 
         // Act
         var result = controller.List(false);
@@ -54,6 +55,26 @@ public class UserControllerTests
         result.Model
             .Should().BeOfType<UserListViewModel>()
             .Which.Items.Should().BeEquivalentTo(users);
+    }
+
+    [Fact]
+    public void Details_WhenServiceReturnsUser_ModelMustContainUser()
+    {
+        // Arrange
+        var controller = CreateController();
+        var users = SetupUsers();
+
+        // Act
+        var result = controller.Details(users[0].Id);
+
+        // Assert
+        var model = result.Model.Should().BeOfType<UserListItemViewModel>().Subject;
+        model.Id.Should().Be(users[0].Id);
+        model.Forename.Should().Be(users[0].Forename);
+        model.Surname.Should().Be(users[0].Surname);
+        model.Email.Should().Be(users[0].Email);
+        model.DateOfBirth.Should().Be(users[0].DateOfBirth);
+        model.IsActive.Should().Be(users[0].IsActive);
     }
 
     private User[] SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", DateTime dateOfBirth = default, bool isActive = true)
@@ -73,23 +94,6 @@ public class UserControllerTests
         _userService
             .Setup(s => s.GetAll())
             .Returns(users);
-
-        return users;
-    }
-
-    private User[] SetupFilteredUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", DateTime dateOfBirth = default, bool isActive = true)
-    {
-        var users = new[]
-        {
-            new User
-            {
-                Forename = forename,
-                Surname = surname,
-                Email = email,
-                IsActive = isActive,
-                DateOfBirth = dateOfBirth == default ? new DateTime ( 2004, 11, 1 ) : dateOfBirth
-            }
-        };
 
         _userService
             .Setup(s => s.FilterByActive(isActive))
