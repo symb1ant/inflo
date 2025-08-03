@@ -1,3 +1,4 @@
+using System;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Web.Models.Users;
@@ -55,7 +56,7 @@ public class UserControllerTests
             .Which.Items.Should().BeEquivalentTo(users);
     }
 
-    private User[] SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
+    private User[] SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", DateTime dateOfBirth = default, bool isActive = true)
     {
         var users = new[]
         {
@@ -64,7 +65,8 @@ public class UserControllerTests
                 Forename = forename,
                 Surname = surname,
                 Email = email,
-                IsActive = isActive
+                IsActive = isActive,
+                DateOfBirth = dateOfBirth == default ? new DateTime ( 2004, 11, 1 ) : dateOfBirth
             }
         };
 
@@ -75,7 +77,7 @@ public class UserControllerTests
         return users;
     }
 
-    private User[] SetupFilteredUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
+    private User[] SetupFilteredUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", DateTime dateOfBirth = default, bool isActive = true)
     {
         var users = new[]
         {
@@ -84,7 +86,8 @@ public class UserControllerTests
                 Forename = forename,
                 Surname = surname,
                 Email = email,
-                IsActive = isActive
+                IsActive = isActive,
+                DateOfBirth = dateOfBirth == default ? new DateTime ( 2004, 11, 1 ) : dateOfBirth
             }
         };
 

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Implementations;
@@ -48,8 +49,9 @@ public class UserServiceTests
         result.Should().BeEquivalentTo(users);
     }
 
-    private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
+   private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", DateTime dateOfBirth = default, bool isActive = true)
     {
+
         var users = new[]
         {
             new User
@@ -57,6 +59,7 @@ public class UserServiceTests
                 Forename = forename,
                 Surname = surname,
                 Email = email,
+                DateOfBirth = dateOfBirth == default ? new DateTime ( 2004, 11, 1 ) : dateOfBirth,
                 IsActive = isActive
             }
         }.AsQueryable();
