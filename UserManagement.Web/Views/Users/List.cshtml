@@ -1,4 +1,21 @@
 ﻿@model UserManagement.Web.Models.Users.UserListViewModel
+@{
+    ViewBag.Title = "User List";
+}
+
+@if (TempData["UserAdded"] != null && (bool)(TempData["UserAdded"] ?? false))
+{
+    <div class="alert alert-success">
+        User Added Successfully!
+    </div>
+}
+
+@if (TempData["UserUpdated"] != null && (bool)(TempData["UserUpdated"] ?? false))
+{
+    <div class="alert alert-info">
+        User Updated Successfully!
+    </div>
+}
 
 <h2>User List</h2>
 
@@ -43,8 +60,8 @@
                                 Actions
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="btnToggleActions">
-                                <li><a class="dropdown-item" href="#">View</a></li>
-                                <li><a class="dropdown-item" href="#">Edit</a></li>
+                                <li><a class="dropdown-item" asp-controller="Users" asp-action="Details" asp-route-id="@item.Id">View</a></li>
+                                <li><a class="dropdown-item" asp-controller="Users" asp-action="EditUser" asp-route-id="@item.Id">Edit</a></li>
                                 <li><a class="dropdown-item" href="#">Delete</a></li>
                             </ul>
                         </div>
@@ -62,7 +79,7 @@
         <a asp-controller="Users" asp-action="List" asp-route-isActive="false" class="btn btn-default">Non Active</a>
     </div>
 
-    <a href="#" class="btn btn-primary float-end">
+    <a class="btn btn-primary float-end" asp-controller="Users" asp-action="AddUser">
         Add User
     </a>
 </div>

@@ -40,7 +40,7 @@ public class UserServiceTests
     {
         // Arrange
         var service = CreateService();
-        var users = SetupUsers( isActive: false);
+        var users = SetupUsers(isActive: false);
 
         // Act
         var result = service.FilterByActive(false);
@@ -49,9 +49,61 @@ public class UserServiceTests
         result.Should().BeEquivalentTo(users);
     }
 
-   private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", DateTime dateOfBirth = default, bool isActive = true)
+    [Fact]
+    public void CreateUser_WhenContextAddsEntity_MustReturnNewEntity()
+    {
+        // Arrange
+        var service = CreateService();
+
+        var user = CreateNewUser();
+        _dataContext
+            .Setup(s => s.Create(It.IsAny<User>()))
+            .Callback<User>(u => u.Id = 1)
+            .Verifiable();
+
+        // Act
+        var result = service.Add(user);
+
+        // Assert
+        result.Should().BeTrue();
+        _dataContext.Verify(s => s.Create(It.Is<User>(u => u.Forename == user.Forename &&
+                                                           u.Surname == user.Surname &&
+                                                           u.Email == user.Email &&
+                                                           u.DateOfBirth == user.DateOfBirth &&
+                                                           u.IsActive == user.IsActive)), Times.Once);
+    }
+
+    [Fact]
+    public void UpdateUser_WhenContextUpdatesEntity_MustReturnUpdatedEntity()
     {
 
+        // Arrange
+        var service = CreateService();
+        var user = CreateNewUser();
+        user.Id = 1;
+
+        _dataContext
+            .Setup(s => s.Update(It.IsAny<User>()))
+            .Callback<User>(u => u.Forename = "Updated")
+            .Verifiable();
+
+        // Act
+        var result = service.Update(user);
+
+        // Assert
+        result.Should().BeTrue();
+        _dataContext.Verify(s => s.Update(It.Is<User>(u => u.Id == user.Id &&
+                                                           u.Forename == "Updated" &&
+                                                           u.Surname == user.Surname &&
+                                                           u.Email == user.Email &&
+                                                           u.DateOfBirth == user.DateOfBirth &&
+                                                           u.IsActive == user.IsActive)), Times.Once);
+
+    }
+
+    private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User",
+        string email = "juser@example.com", DateTime dateOfBirth = default, bool isActive = true)
+    {
         var users = new[]
         {
             new User
@@ -59,7 +111,7 @@ public class UserServiceTests
                 Forename = forename,
                 Surname = surname,
                 Email = email,
-                DateOfBirth = dateOfBirth == default ? new DateTime ( 2004, 11, 1 ) : dateOfBirth,
+                DateOfBirth = dateOfBirth == default ? new DateTime(2004, 11, 1) : dateOfBirth,
                 IsActive = isActive
             }
         }.AsQueryable();
@@ -73,4 +125,16 @@ public class UserServiceTests
 
     private readonly Mock<IDataContext> _dataContext = new();
     private UserService CreateService() => new(_dataContext.Object);
+
+    private User CreateNewUser()
+    {
+        return new User
+        {
+            Forename = "New",
+            Surname = "User",
+            Email = "new@user.com",
+            DateOfBirth = new DateTime(2000, 1, 1),
+            IsActive = true
+        };
+    }
 }

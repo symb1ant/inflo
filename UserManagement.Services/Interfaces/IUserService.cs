@@ -3,7 +3,7 @@ using UserManagement.Models;
 
 namespace UserManagement.Services.Domain.Interfaces;
 
-public interface IUserService 
+public interface IUserService
 {
     /// <summary>
     /// Return users by active state
@@ -12,4 +12,6 @@ public interface IUserService
     /// <returns></returns>
     IEnumerable<User> FilterByActive(bool isActive);
     IEnumerable<User> GetAll();
+    bool Add(User user);
+    bool Update(User user);
 }

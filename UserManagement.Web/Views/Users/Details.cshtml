@@ -1,0 +1,18 @@
+﻿@model UserManagement.Web.Models.Users.UserListItemViewModel
+<h2>User Details</h2>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">
+            @Model.Forename @Model.Surname
+        </h5>
+    </div>
+    <div class="card-body">
+        Date of Birth: @Model.DateOfBirth.ToString("dd/MM/yyyy")<br />
+        Email: @Model.Email<br />
+        Account Active: @(Model.IsActive ? "Yes" : "No")<br />
+    </div>
+</div>
+<hr/>
+<p>
+    <a asp-controller="Users" asp-action="List" class="btn btn-primary">Back to User List</a>
+</p>
