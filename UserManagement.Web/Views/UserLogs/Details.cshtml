@@ -1,0 +1,24 @@
+﻿@model UserManagement.Web.Models.UserLogs.UserLogListVIewModel.UserLogListItemViewModel
+
+@{
+    ViewBag.Title = "View Log Details";
+}
+
+<h2>Log Details</h2>
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">
+           User Id: @Model.UserId
+        </h5>
+    </div>
+    <div class="card-body">
+        Date: @Model.ChangedAt.ToString("dd/MM/yyyy HH:mm:ss")<br />
+        Property: @Model.FieldName<br />
+        Old Value: @Model.OldValue<br />
+        New Value: @Model.NewValue<br />
+    </div>
+</div>
+<hr/>
+<p>
+    <a asp-controller="UserLogs" asp-action="List" class="btn btn-primary">Back to Log List</a>
+</p>
