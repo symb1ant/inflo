@@ -12,6 +12,29 @@
         Account Active: @(Model.IsActive ? "Yes" : "No")<br />
     </div>
 </div>
+<h3>Change Log</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Property</th>
+            <th>Old Value</th>
+            <th>New Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var change in Model.ChangeLogs)
+        {
+            <tr>
+                <td>@change.ChangedAt.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                <td>@change.FieldName</td>
+                <td>@change.OldValue</td>
+                <td>@change.NewValue</td>
+            </tr>
+        }
+    </tbody>
+</table>
 <hr/>
 <p>
     <a asp-controller="Users" asp-action="List" class="btn btn-primary">Back to User List</a>

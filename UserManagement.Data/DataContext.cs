@@ -9,6 +9,12 @@ public class DataContext : DbContext, IDataContext
 {
     public DataContext() => Database.EnsureCreated();
 
+    public override int SaveChanges()
+    {
+        AddAuditLogs();
+        return base.SaveChanges();
+    }
+
     protected override void OnConfiguring(DbContextOptionsBuilder options)
         => options.UseInMemoryDatabase("UserManagement.Data.DataContext");
 
@@ -29,6 +35,7 @@ public class DataContext : DbContext, IDataContext
         });
 
     public DbSet<User>? Users { get; set; }
+    public DbSet<UserChangeLog>? UserChangeLogs { get; set; }
 
     public IQueryable<TEntity> GetAll<TEntity>() where TEntity : class
         => base.Set<TEntity>();
@@ -41,7 +48,31 @@ public class DataContext : DbContext, IDataContext
 
     public new void Update<TEntity>(TEntity entity) where TEntity : class
     {
-        base.Update(entity);
+        var set = Set<TEntity>();
+        var tracked = set.Local.FirstOrDefault(e =>
+            Entry(e).Property("Id").CurrentValue?.ToString() ==
+            Entry(entity).Property("Id").CurrentValue?.ToString());
+
+        if (tracked != null)
+        {
+            Entry(tracked).CurrentValues.SetValues(entity);
+        }
+        else
+        {
+            var entry = Entry(entity);
+            var idValue = entry.Property("Id").CurrentValue;
+            var existing = set.Find(idValue);
+            if (existing != null)
+            {
+                Entry(existing).CurrentValues.SetValues(entity);
+            }
+            else
+            {
+                set.Attach(entity);
+                entry.State = EntityState.Modified;
+            }
+        }
+
         SaveChanges();
     }
 
@@ -49,5 +80,23 @@ public class DataContext : DbContext, IDataContext
     {
         base.Remove(entity);
         SaveChanges();
+    }
+
+    private void AddAuditLogs()
+    {
+        var auditEntries = ChangeTracker.Entries<User>()
+            .Where(e => e.State == EntityState.Modified)
+            .SelectMany(e => e.Properties
+                .Where(p => p.IsModified)
+                .Select(p => new UserChangeLog
+                {
+                    UserId = e.Entity.Id,
+                    FieldName = p.Metadata.Name,
+                    OldValue = p.OriginalValue?.ToString(),
+                    NewValue = p.CurrentValue?.ToString(),
+                    ChangedAt = DateTime.UtcNow
+                }));
+
+        UserChangeLogs!.AddRange(auditEntries);
     }
 }

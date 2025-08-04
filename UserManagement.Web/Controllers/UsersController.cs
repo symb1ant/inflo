@@ -63,7 +63,8 @@ public class UsersController : Controller
             Surname = user.Surname,
             Email = user.Email,
             IsActive = user.IsActive,
-            DateOfBirth = user.DateOfBirth
+            DateOfBirth = user.DateOfBirth,
+            ChangeLogs = user.ChangeLogs.Any() ? user.ChangeLogs.OrderByDescending(x => x.ChangedAt).ToList() : []
         };
 
         return View(model);
