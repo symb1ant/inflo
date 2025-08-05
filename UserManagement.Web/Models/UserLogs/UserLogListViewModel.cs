@@ -2,7 +2,7 @@
 
 namespace UserManagement.Web.Models.UserLogs;
 
-public class UserLogListVIewModel
+public class UserLogListViewModel
 {
     public List<UserLogListItemViewModel> Items { get; set; } = new();
 

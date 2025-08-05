@@ -22,9 +22,9 @@ public class UserLogsController : Controller
             .Skip((page - 1) * pageSize)
             .Take(pageSize);
 
-        var viewModel = new UserLogListVIewModel
+        var viewModel = new UserLogListViewModel
         {
-            Items = logs.Select(log => new UserLogListVIewModel.UserLogListItemViewModel
+            Items = logs.Select(log => new UserLogListViewModel.UserLogListItemViewModel
             {
                 Id = log.Id,
                 UserId = log.UserId,
@@ -50,7 +50,7 @@ public class UserLogsController : Controller
             return View("NotFound");
         }
 
-        var viewModel = new UserLogListVIewModel.UserLogListItemViewModel
+        var viewModel = new UserLogListViewModel.UserLogListItemViewModel
         {
             Id = log.Id,
             UserId = log.UserId,
