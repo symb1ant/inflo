@@ -13,18 +13,27 @@ public class Program
 
         builder.Services.AddControllers().AddJsonOptions(options =>
         {
-            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-            options.JsonSerializerOptions.MaxDepth = 32;
+            options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+            options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         });
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
 
         builder.Services.AddScoped<IDataContext, DataContext>();
-
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IUserLogService, UserLogService>();
 
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", builder =>
+                builder.AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+        });
+
         var app = builder.Build();
+
+        app.UseCors("AllowAll");
 
         if (app.Environment.IsDevelopment())
         {

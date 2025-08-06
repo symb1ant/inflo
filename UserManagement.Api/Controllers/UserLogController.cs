@@ -7,10 +7,11 @@ namespace UserManagement.Api.Controllers;
 [Route("[controller]")]
 public class UserLogController(IUserLogService userLogService) : ControllerBase
 {
-    [HttpGet("list")]
-    public IActionResult List()
+    [HttpGet("list/{page:int=1}/{pageSize:int=10}")]
+    public IActionResult List(int page = 1, int pageSize = 10)
     {
-        var logs = userLogService.GetAllLogs();
+        var skip = (page - 1) * pageSize;
+        var logs = userLogService.GetAllLogs().Skip(skip).Take(pageSize).ToList();
         return Ok(logs);
     }
 

@@ -1,0 +1,95 @@
+﻿@page "/users/delete/{UserId:long}"
+@using UserManagement.Contracts.Users
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h2>View User </h2>
+
+<div class="card">
+    <div class="card-body">
+        @if (model == null)
+        {
+            <p>Loading...</p>
+        }
+        else if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+        else
+        {
+            <dl class="row">
+                <dt class="col-sm-3">Forename:</dt>
+                <dd class="col-sm-9">@model.Forename</dd>
+
+                <dt class="col-sm-3">Surname:</dt>
+                <dd class="col-sm-9">@model.Surname</dd>
+                <dt class="col-sm-3">Email:</dt>
+                <dd class="col-sm-9">@model.Email</dd>
+
+                <dt class="col-sm-3">Date of Birth:</dt>
+                <dd class="col-sm-9">@model.DateOfBirth.ToShortDateString()</dd>
+
+                <dt class="col-sm-3">Is Active:</dt>
+                <dd class="col-sm-9">@(model.IsActive ? "Yes" : "No")</dd>
+
+            </dl>
+        }
+    </div>
+</div>
+<hr/>
+<button class="btn btn-danger" @onclick="ConfirmDelete">Delete User</button>&nbsp;
+<button class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+
+@code {
+
+    [Parameter] public long UserId { get; set; }
+
+    private UserListItemViewModel? model;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            model = await Http.GetFromJsonAsync<UserListItemViewModel>($"user/details/{UserId}");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading user: {ex.Message}";
+        }
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (model != null)
+        {
+            try
+            {
+                var response = await Http.DeleteAsync($"user/delete/{model.Id}");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    NavigationManager.NavigateTo("/users/list", forceLoad: true);
+                }
+                else
+                {
+                    errorMessage = "An error occurred while deleting the user. Please try again.";
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = $"An error occurred: {ex.Message}";
+            }
+        }
+        else
+        {
+            errorMessage = "User not found.";
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/users/list", forceLoad: true);
+    }
+
+}

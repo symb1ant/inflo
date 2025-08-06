@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace UserManagement.Contracts.User;
+namespace UserManagement.Contracts.Users;
 
-public class UserAddViewModel
+public class UserEditViewModel
 {
+    public long Id { get; set; }
     [Required(ErrorMessage = "Forename is required")]
     public string? Forename { get; set; }
     [Required(ErrorMessage = "Surname is required")]
