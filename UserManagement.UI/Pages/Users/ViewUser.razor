@@ -36,6 +36,54 @@
         }
     </div>
 </div>
+<div class="card">
+    <div class="card-header">
+        Changelogs for this user
+    </div>
+    <div class="card-body">
+
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Field Name</th>
+                    <th>Old Value</th>
+                    <th>New Value</th>
+                    <th>Changed At</th>
+                </tr>
+                </thead>
+                <tbody>
+                @if (model == null)
+                {
+                    <tr>
+                        <td colspan="6">Loading...</td>
+                    </tr>
+                }
+                else if (model.ChangeLogs.Count == 0)
+                {
+                    <tr>
+                        <td colspan="6">No logs found.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var log in model.ChangeLogs)
+                    {
+                        <tr>
+                            <td>@log.FieldName</td>
+                            <td>@log.OldValue</td>
+                            <td>@log.NewValue</td>
+                            <td>@log.ChangedAt.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                    }
+                }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>
 <hr/>
 <button class="btn btn-secondary" @onclick="GoBack">Back to List</button>
 

@@ -70,7 +70,17 @@ public class UserController(IUserService userService) : ControllerBase
             Surname = user.Surname,
             Email = user.Email,
             IsActive = user.IsActive,
-            DateOfBirth = user.DateOfBirth
+            DateOfBirth = user.DateOfBirth,
+            ChangeLogs = user.ChangeLogs.Select(c => new UserChangeLogViewModel
+            {
+                Id = c.Id,
+                UserId = c.UserId,
+                FieldName = c.FieldName,
+                OldValue = c.OldValue,
+                NewValue = c.NewValue,
+                ChangedAt = c.ChangedAt
+            }).ToList()
+
         };
         return Ok(result);
     }
