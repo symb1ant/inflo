@@ -1,0 +1,136 @@
+﻿@page "/users/list/{IsActive:bool?}"
+@inherits LayoutComponentBase
+@using UserManagement.Contracts.Users
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Users List</PageTitle>
+<h3>Users List</h3>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Forename</th>
+            <th>Surname</th>
+            <th>Email</th>
+            <th>Date of Birth</th>
+            <th>Is Active</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        @if (_model == null)
+        {
+            <tr>
+                <td colspan="6">Loading...</td>
+            </tr>
+        }
+        else if (_model.Items.Count == 0)
+        {
+            <tr>
+                <td colspan="6">No users found.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var user in _model.Items)
+            {
+                <tr>
+                    <td>@user.Forename</td>
+                    <td>@user.Surname</td>
+                    <td>@user.Email</td>
+                    <td>@user.DateOfBirth.ToShortDateString()</td>
+                    <td>@(user.IsActive ? "Yes" : "No")</td>
+                    <td>
+                        <div class="dropdown d-inline">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                    id="dropdownMenuButton-@user.Id" data-bs-toggle="dropdown" aria-expanded="false">
+                                Actions
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton-@user.Id">
+                                <li>
+                                    <a class="dropdown-item small" @onclick="() => EditUser(user.Id)">Edit</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item small" @onclick="() => ViewUser(user.Id)">View</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item small" @onclick="() => DeleteUser(user.Id)">Delete</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+</div>
+<div>
+    <button @onclick="NavigateToAddUser" class="btn btn-success">Add User</button>&nbsp;
+    <button @onclick="NavigateToActiveUsers" class="btn btn-primary">Active Users</button>&nbsp;
+    <button @onclick="NavigateToInactiveUsers" class="btn btn-secondary">Inactive Users</button>&nbsp;
+    <button @onclick="NavigateToAllUsers" class="btn btn-info">All Users</button>
+</div>
+
+@code {
+    private UserListViewModel? _model;
+
+    [Parameter] public bool? IsActive { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (IsActive != null)
+            {
+                _model = await Http.GetFromJsonAsync<UserListViewModel>($"user/list/{IsActive}");
+            }
+            else
+            {
+                _model = await Http.GetFromJsonAsync<UserListViewModel>($"user/list/");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching users: {ex.Message}");
+            _model = new UserListViewModel();
+        }
+    }
+
+    private void NavigateToAddUser()
+    {
+        NavigationManager.NavigateTo("users/adduser");
+    }
+
+    private void EditUser(long userId)
+    {
+        NavigationManager.NavigateTo($"users/edit/{userId}");
+    }
+
+    private void DeleteUser(long userId)
+    {
+        NavigationManager.NavigateTo($"users/delete/{userId}");
+    }
+
+    private void ViewUser(long userId)
+    {
+        NavigationManager.NavigateTo($"users/view/{userId}");
+    }
+
+    private void NavigateToActiveUsers()
+    {
+        NavigationManager.NavigateTo("/users/list/true", forceLoad: true);
+    }
+
+    private void NavigateToInactiveUsers()
+    {
+        NavigationManager.NavigateTo("/users/list/false", forceLoad: true);
+    }
+
+    private void NavigateToAllUsers()
+    {
+        NavigationManager.NavigateTo("/users/list", forceLoad: true);
+    }
+}

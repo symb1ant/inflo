@@ -1,0 +1,85 @@
+@page "/users/adduser"
+@using UserManagement.Contracts.Users
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h3>Add User</h3>
+
+<EditForm Model="@model" OnValidSubmit="CreateUser">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group mb-3">
+        <label for="forename">Forename:</label>
+        <InputText id="forename" class="form-control" @bind-Value="model.Forename" />
+        <ValidationMessage For="@(() => model.Forename)" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="surname">Surname:</label>
+        <InputText id="surname" class="form-control" @bind-Value="model.Surname" />
+        <ValidationMessage For="@(() => model.Surname)" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="email">Email:</label>
+        <InputText id="email" class="form-control" @bind-Value="model.Email" />
+        <ValidationMessage For="@(() => model.Email)" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="dateOfBirth">Date of Birth:</label>
+        <InputDate id="dateOfBirth" class="form-control" @bind-Value="model.DateOfBirth" />
+        <ValidationMessage For="@(() => model.DateOfBirth)" />
+    </div>
+
+    <div class="form-check mb-3">
+        <InputCheckbox id="isActive" class="form-check-input" @bind-Value="model.IsActive" />
+        <label class="form-check-label" for="isActive">Is Active</label>
+        <ValidationMessage For="@(() => model.IsActive)" />
+    </div>
+
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Add User</button>
+        <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="alert alert-danger mt-3">
+            @errorMessage
+        </div>
+    }
+</EditForm>
+
+@code {
+    private UserAddViewModel model = new();
+    private string? errorMessage;
+
+    private async Task CreateUser()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync($"user/Create", model);
+
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo($"/users/list/");
+            }
+            else
+            {
+                errorMessage = "An error occurred while adding the user. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo($"/users/list");
+    }
+}
