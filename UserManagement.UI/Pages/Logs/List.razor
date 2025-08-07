@@ -15,7 +15,6 @@
             <th>Old Value</th>
             <th>New Value</th>
             <th>Date</th>
-            <th>Action</th>
         </tr>
         </thead>
         <tbody>
@@ -42,9 +41,6 @@
                     <td>@log.OldValue</td>
                     <td>@log.NewValue</td>
                     <td>@log.ChangedAt.ToString("dd/MM/yyyy")</td>
-                    <td>
-                        <button class="btn btn-primary btn-sm" @onclick="() => ViewLog(log.Id)">View</button>
-                    </td>
                 </tr>
             }
         }
