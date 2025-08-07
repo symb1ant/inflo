@@ -1,0 +1,93 @@
+@page "/logs/list/{currentPage:int?}"
+@inherits LayoutComponentBase
+@using UserManagement.Contracts.UserLogs
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+<h3>User Change Logs</h3>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Log ID</th>
+            <th>User ID</th>
+            <th>Field Name</th>
+            <th>Old Value</th>
+            <th>New Value</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        @if (_model == null)
+        {
+            <tr>
+                <td colspan="6">Loading...</td>
+            </tr>
+        }
+        else if (_model.Items.Count == 0)
+        {
+            <tr>
+                <td colspan="6">No logs found.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var log in _model.Items)
+            {
+                <tr>
+                    <td>@log.Id</td>
+                    <td>@log.UserId</td>
+                    <td>@log.FieldName</td>
+                    <td>@log.OldValue</td>
+                    <td>@log.NewValue</td>
+                    <td>@log.ChangedAt.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" @onclick="() => ViewLog(log.Id)">View</button>
+                    </td>
+                </tr>
+            }
+        }
+        </tbody>
+    </table>
+
+    @if (_model?.PageCount > 1)
+    {
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                @for (int i = 1; i <= _model.PageCount; i++)
+                {
+                    int pageNumber = i;
+                    <li class="page-item @(i == currentPage ? "active" : "")">
+                        <a class="page-link" @onclick="() => NavigateToPage(pageNumber)" title="Page: @pageNumber">@pageNumber</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>
+
+@code {
+
+    private UserLogListViewModel? _model;
+    private int _pageSize = 10;
+
+    [Parameter] public int currentPage { get; set; } = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _model = await Http.GetFromJsonAsync<UserLogListViewModel>($"userlog/list/{currentPage}/{_pageSize}") ?? new UserLogListViewModel();
+    }
+
+    private void ViewLog(long id)
+    {
+        NavigationManager.NavigateTo($"/logs/view/{id}");
+    }
+
+    private void NavigateToPage(int pagenumber)
+    {
+     Console.WriteLine(pagenumber);
+        NavigationManager.NavigateTo($"/logs/list/{pagenumber}", forceLoad: true);
+    }
+
+}

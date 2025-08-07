@@ -116,3 +116,7 @@ code {
 .dropdown-menu {
     cursor:pointer; font-size:0.9rem;
 }
+
+.pagination li {
+    cursor: pointer;
+}
